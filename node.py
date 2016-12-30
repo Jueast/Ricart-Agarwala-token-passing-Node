@@ -58,18 +58,9 @@ class Node(object):
         return cls.instance
 
     def __init__(self, port, hasToken):
-        # Logger part
-        self.logger = logging.Logger("(%s, %d)$" % self.address)
-        self.logger.setLevel(logging.DEBUG)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        self.logger.addHandler(ch)
 
         self.logical_time = 0
-        self.address = (socket.gethostbyname(socket.gethostname()), port)
-        self.logger.debug("LC %d: self.address: %s:%d" % (0, self.address[0], self.address[1]))
+        self.address = ('147.32.96.233', port)
         self.nodes = list()
         self.Token = dict([(hstr((self.address)), self.logical_time)])  # RA-alogrithm
         self.Req = dict([(hstr((self.address)), self.logical_time)])   # RA-alogrithm
@@ -80,6 +71,16 @@ class Node(object):
         self.time_lock = th.BoundedSemaphore()
         self.hasToken = hasToken
         self.inUse = False
+
+        # Logger part
+        self.logger = logging.Logger("(%s, %d)$" % self.address)
+        self.logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        self.logger.addHandler(ch)
+        self.logger.debug("LC %d: self.address: %s:%d" % (0, self.address[0], self.address[1]))
 
     def start(self):
         self.logger.info("LC %d: Start server" % self.logical_time)
