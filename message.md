@@ -1,5 +1,9 @@
 ## Command
 
+
+#### /login
+    /login hostname:port
+
 #### /logout
     /logout
 #### /get_data
@@ -7,6 +11,8 @@
 
 #### /change_data
     /change_data x,y 999
+
+#### /
 
 
 
@@ -28,4 +34,4 @@
     /token
 
 #### /request
-    /request time
+    /request
