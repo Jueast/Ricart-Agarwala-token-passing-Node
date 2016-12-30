@@ -57,10 +57,10 @@ class Node(object):
             cls.instance = super(Node, cls).__new__(cls)
         return cls.instance
 
-    def __init__(self, port, hasToken):
+    def __init__(self, address, hasToken):
 
         self.logical_time = 0
-        self.address = ('147.32.96.233', port)
+        self.address =  address
         self.nodes = list()
         self.Token = dict([(hstr((self.address)), self.logical_time)])  # RA-alogrithm
         self.Req = dict([(hstr((self.address)), self.logical_time)])   # RA-alogrithm
@@ -94,10 +94,11 @@ class Node(object):
 
     @addClock
     def send(self, addr, message):
+
         temp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         send_address = (self.address[0], self.address[1] - 1)
         temp_sock.bind(send_address)
-        message = str(self.logical_time) + "@" + message
+        message = hstr(self.address)+ "@" + str(self.logical_time) + "@" + message
         self.logger.info("LC %d: Send %s to %s:%d." % (self.logical_time,
                                                        message,
                                                        addr[0], addr[1]))
@@ -125,7 +126,7 @@ class Node(object):
             print(e)
             self.logger.warning("LC %d: Log in failed in connection" % self.logical_time)
         finally:
-            self.logger.warning("LC %d: Closing loginning socket." % self.logical_time)
+            self.logger.info("LC %d: Closing loginning socket." % self.logical_time)
 
     @MutualExclusion
     @addClock
@@ -236,13 +237,14 @@ class Node(object):
         self.hasToken = True
 
     def handle(self, line, addr):
-        recieve_addr = (addr[0], addr[1]+1)
         l = line.decode().strip().split('@')
+        p = l[0].split(":")
+        recieve_addr = (p[0], int(p[1]))
+        msg_time = int(l[1])
         self.time_lock.acquire()
-        self.logical_time = max(int(l[0]), self.logical_time) + 1
+        self.logical_time = max(msg_time, self.logical_time) + 1
         self.time_lock.release()
-        msg_time = int(l[0])
-        line = l[1].split(' ')
+        line = l[2].split(' ')
         dispatch = {
             '/login': self.get_login,
             '/logout': self.get_logout,
@@ -261,14 +263,15 @@ if __name__ == '__main__':
             node.login(hostname, int(port))
         except Exception as e:
             print(e)
-            print("Unvalid Login.")
+            print("Invalid Login.")
             return -1
         return 0
     token = False
     if len(sys.argv) == 3:
         token = sys.argv[2] == '-t'
-    port = int(sys.argv[1])
-    node = Node(port, token)
+    p = sys.argv[1].split(':')
+    address = (p[0], int(p[1]))
+    node = Node(address, token)
     p = th.Thread(target=node.start)
     p.start()
     line = input("Please input the address of target node: (form: 'hostname:port')\n")

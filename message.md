@@ -7,10 +7,10 @@
 #### /logout
     /logout
 #### /get_data
-    /get_data x,y
+    /get_data x
 
 #### /change_data
-    /change_data x,y 999
+    /change_data x 999
 
 #### /
 
