@@ -129,14 +129,18 @@ class Node(object):
     @MutualExclusion
     @addClock
     def change_data(self, line):
-        target = line[1]
-        value = int(line[2])
-        self.data[target] = value
-        message = "/data " + target + " " + str(value)
-        print (self.nodes)
-        for addr in self.nodes:
-            self.send(addr, message)
-        self.logger.info("LC %d: data[%s] = %s " % (self.logical_time, target, str(value)))
+        try:
+            target = line[1]
+            value = int(line[2])
+            self.data[target] = value
+            message = "/data " + target + " " + str(value)
+            print (self.nodes)
+            for addr in self.nodes:
+                self.send(addr, message)
+            self.logger.info("LC %d: data[%s] = %s " % (self.logical_time, target, str(value)))
+        except Exception as e:
+            print(e)
+            return -1
         return value
 
     @addClock
