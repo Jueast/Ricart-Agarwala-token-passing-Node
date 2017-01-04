@@ -274,13 +274,14 @@ if __name__ == '__main__':
     node = Node(address, token)
     p = th.Thread(target=node.start)
     p.start()
-    line = input("Please input the address of target node: (form: 'hostname:port')\n")
+    print("--------------------------Start---------------------------")
+    line = input("If you want to login into other nodes, please input the address of target node\n(form: 'hostname:port')\nelse just input enter and ignore the warning:\n ")
     login_check(node, line)
     while True:
         command = input("Please input your command: \n")
         line = command.strip().split(' ')
         dispatch = {
-            '/login': lambda line: login_check(node, line),
+            '/login': lambda line: login_check(node, line[1]),
             '/logout': node.logout,
             '/get_data': node.get_data,
             '/change_data': node.change_data,
