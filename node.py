@@ -172,6 +172,14 @@ class Node(object):
         if s.strip() == "y" or s.strip() == "Y":
             self.hasToken = True
             print("Token created on this node successfully.")
+            self.nodes_lock.acquire()
+            for addr in self.nodes:
+                if addr == self.address:
+                    continue
+                if self.Req[hstr(addr)] > self.Token[hstr(addr)] and self.hasToken and not self.inUse:
+                    self.hasToken = False
+                    self.send(addr, "/token")
+            self.nodes_lock.release()
         else:
             print("No token created.")
     @addClock
