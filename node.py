@@ -29,7 +29,7 @@ def MutualExclusion(method):
             for addr in self.nodes:
                 self.send(addr, message)
             while not self.hasToken:
-                time.sleep(1)
+                time.sleep(0.2)
         self.inUse = True
         self.data_lock.acquire()
         result = method(self, *args, **kwargs)
@@ -115,16 +115,17 @@ class Node(object):
         message += " " + json.dumps(self.Token, separators=(',', ':'))
         message += " " + json.dumps(self.Req, separators=(',', ':'))
         self.send(addr, message)
+        login_addr = addr
         self.nodes_lock.acquire()
         self.nodes.append(login_addr)
         self.Token[hstr((login_addr))] = self.logical_time
         self.Req[hstr((login_addr))] = self.logical_time
-        value = data.get("__node_count", 1) + 1
+        value = self.data.get("__node_count", 1) + 1
         message = "/data " + "__node_count" + " " + str(value)
         for addr in self.nodes:
             self.send(addr, message)
         self.nodes_lock.release()
-        self.logger.debug("LC %d: data[%s] = %s " % (self.logical_time, target, str(value)))
+        self.logger.debug("LC %d: data[%s] = %s " % (self.logical_time, "__node_count", str(value)))
 
 
     @addClock
@@ -172,7 +173,7 @@ class Node(object):
     def logout(self, line):
         if self.hasToken:
             while self.inUse:
-                time.sleep(1)    # temprory
+                time.sleep(0.2)    # temprory
             self.send(self.nodes[0], "/token")
         self.hasToken = False
         message = "/logout"
