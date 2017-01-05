@@ -115,6 +115,14 @@ class Node(object):
         message += " " + json.dumps(self.Token, separators=(',', ':'))
         message += " " + json.dumps(self.Req, separators=(',', ':'))
         self.send(addr, message)
+        value = data.get("x", 0)
+        message = "/data " + "x" + " " + str(value)
+        for addr in self.nodes:
+            self.send(addr, message)
+
+        # Trick here.
+        # self.logger.debug("LC %d: data[%s] = %s " % (self.logical_time, target, str(value)))
+
 
     @addClock
     def login(self, hostname, port):
@@ -135,7 +143,6 @@ class Node(object):
             value = int(line[2])
             self.data[target] = value
             message = "/data " + target + " " + str(value)
-            print (self.nodes)
             for addr in self.nodes:
                 self.send(addr, message)
             self.logger.info("LC %d: data[%s] = %s " % (self.logical_time, target, str(value)))
@@ -150,6 +157,14 @@ class Node(object):
         r = self.data.get(target, 0)
         return r
 
+    @addClock
+    def buildToken(self, line):
+        s = input("Dangerous operation!!! If you truly want to do this? (y/N)")
+        if s.strip() == "y" or s.strip() == "Y":
+            self.hasToken = True
+            print("Token created on this node successfully.")
+        else:
+            print("No token created.")
     @addClock
     def logout(self, line):
         if self.hasToken:
@@ -250,7 +265,7 @@ class Node(object):
             '/init': self.get_init,
             '/data': self.get_data_change,
             '/token': self.get_token,
-            '/request': self.get_request
+            '/request': self.get_request,
         }
         comm = dispatch.get(line[0], self.error)
         comm(msg_time, line, recieve_addr)
@@ -284,7 +299,8 @@ if __name__ == '__main__':
             '/logout': node.logout,
             '/get_data': node.get_data,
             '/change_data': node.change_data,
-            '/exit': lambda: sys.exit(0)
+            '/exit': lambda: sys.exit(0),
+            '/buildToken': node.buildToken
         }
         c = dispatch.get(line[0], lambda line: node.error(0, line))
         result = c(line)
