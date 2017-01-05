@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import socket
-# import multiprocessing
 import threading as th
 import sys
 import logging
