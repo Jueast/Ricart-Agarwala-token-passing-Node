@@ -203,6 +203,12 @@ class Node(object):
             for addr in self.nodes:
                 self.send(addr, message)
             self.init(login_addr)
+        else:
+            self.nodes_lock.acquire()
+            self.nodes.append(login_addr)
+            self.Token[hstr((login_addr))] = self.logical_time
+            self.Req[hstr((login_addr))] = self.logical_time
+            self.nodes_lock.release()
 
     def get_logout(self, msg_time, line, addr):
         self.logger.info("LC %d: Get logout from %s:%d" % (self.logical_time,
