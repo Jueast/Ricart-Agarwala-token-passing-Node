@@ -158,7 +158,7 @@ class Node(object):
 
     @addClock
     def get_data(self, line):
-        try：
+        try:
             target = line[1]
             r = self.data.get(target, 0)
         except Exception as e:
