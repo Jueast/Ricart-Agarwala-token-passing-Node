@@ -121,6 +121,7 @@ class Node(object):
         self.Token[hstr((login_addr))] = self.logical_time
         self.Req[hstr((login_addr))] = self.logical_time
         value = self.data.get("__node_count", 1) + 1
+        self.data["__node_count"] = value
         message = "/data " + "__node_count" + " " + str(value)
         for addr in self.nodes:
             self.send(addr, message)
@@ -157,8 +158,12 @@ class Node(object):
 
     @addClock
     def get_data(self, line):
-        target = line[1]
-        r = self.data.get(target, 0)
+        try：
+            target = line[1]
+            r = self.data.get(target, 0)
+        except Exception as e:
+            print(e)
+            return -1
         return r
 
     @addClock
