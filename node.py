@@ -115,13 +115,16 @@ class Node(object):
         message += " " + json.dumps(self.Token, separators=(',', ':'))
         message += " " + json.dumps(self.Req, separators=(',', ':'))
         self.send(addr, message)
-        value = data.get("x", 0)
-        message = "/data " + "x" + " " + str(value)
+        self.nodes_lock.acquire()
+        self.nodes.append(login_addr)
+        self.Token[hstr((login_addr))] = self.logical_time
+        self.Req[hstr((login_addr))] = self.logical_time
+        value = data.get("__node_count", 1) + 1
+        message = "/data " + "__node_count" + " " + str(value)
         for addr in self.nodes:
             self.send(addr, message)
-
-        # Trick here.
-        # self.logger.debug("LC %d: data[%s] = %s " % (self.logical_time, target, str(value)))
+        self.nodes_lock.release()
+        self.logger.debug("LC %d: data[%s] = %s " % (self.logical_time, target, str(value)))
 
 
     @addClock
@@ -194,11 +197,6 @@ class Node(object):
             for addr in self.nodes:
                 self.send(addr, message)
             self.init(login_addr)
-        self.nodes_lock.acquire()
-        self.nodes.append(login_addr)
-        self.Token[hstr((login_addr))] = self.logical_time
-        self.Req[hstr((login_addr))] = self.logical_time
-        self.nodes_lock.release()
 
     def get_logout(self, msg_time, line, addr):
         self.logger.info("LC %d: Get logout from %s:%d" % (self.logical_time,
